@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: bus_ticket
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/bus_ticket
+    username: root
+    password: Manh2004
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+
+  security:
+    oauth2:
+      resource server:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/bus_ticket
+      client:
+        registration:
+          bus_ticket:
+            client-secret: oAxwdQpjseeMeUGzC4v6UbScqPS5v9MN
+            client-id: bus_ticket
+            authorization-grant-type: authorization_code
+            scope:
+              - openid
+              - profile
+              - email
+            redirect-uri: http://localhost:3000/login/oauth2/code/bus_ticket
+        provider:
+          bus_ticket:
+            issuer-uri: http://localhost:8080/realms/bus_ticket
+
+server:
+  port: 8081
