@@ -1,6 +1,8 @@
 package com.Man10h.BusTicket.util;
 
+import com.Man10h.BusTicket.model.entity.UserEntity;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,15 +16,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class KeycloakConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
+    private final UserSynchronize userSynchronize;
+
     public Collection<? extends GrantedAuthority> convertToGrantedAuthorities(Jwt jwt) {
-        Map<String, Object> realm_access = jwt.getClaimAsMap("realm_access");
-        if(realm_access != null && !realm_access.isEmpty() && realm_access.containsKey("roles")) {
-            List<String> roles = (List<String>) realm_access.get("roles");
-            return roles.stream().map(it -> new SimpleGrantedAuthority("ROLE_" + it)).collect(Collectors.toList());
-        }
-        return null;
+        UserEntity user = userSynchronize.synchronize(jwt);
+        return user.getAuthorities();
     }
 
     @Override

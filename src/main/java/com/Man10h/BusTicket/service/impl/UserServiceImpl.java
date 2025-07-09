@@ -1,7 +1,19 @@
 package com.Man10h.BusTicket.service.impl;
 
+import com.Man10h.BusTicket.convert.UserConvert;
+import com.Man10h.BusTicket.exception.ex.RoleErrorException;
+import com.Man10h.BusTicket.exception.ex.UserErrorException;
+import com.Man10h.BusTicket.model.dto.UserDTO;
+import com.Man10h.BusTicket.model.entity.ImageEntity;
+import com.Man10h.BusTicket.model.entity.RoleEntity;
+import com.Man10h.BusTicket.model.entity.UserEntity;
+import com.Man10h.BusTicket.model.response.UserResponse;
+import com.Man10h.BusTicket.repository.ImageRepository;
+import com.Man10h.BusTicket.repository.RoleRepository;
+import com.Man10h.BusTicket.repository.UserRepository;
+import com.Man10h.BusTicket.service.CloudinaryService;
 import com.Man10h.BusTicket.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
@@ -9,16 +21,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private RestTemplate restTemplate;
+    private final UserConvert userConvert;
+    private final RestTemplate restTemplate;
+    private final CloudinaryService cloudinaryService;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final ImageRepository imageRepository;
 
     @Value("${spring.security.oauth2.client.registration.bus_ticket.client-secret}")
     private String client_secret;
@@ -57,10 +75,57 @@ public class UserServiceImpl implements UserService {
             Map<String, String> res = new HashMap<>();
             String access_token = response.getBody().get("access_token").toString();
             String refresh_token = response.getBody().get("refresh_token").toString();
+            String expires_in = response.getBody().get("expires_in").toString();
             res.put("access_token", access_token);
             res.put("refresh_token", refresh_token);
+            res.put("expires_in", expires_in);
             return res;
         }
         return null;
+    }
+
+    @Override
+    public UserResponse updateUser(UserDTO userDTO) {
+        if(userDTO.getId() == null){
+            return null;
+        }
+        Optional<UserEntity> optionalUser = userRepository.findById(userDTO.getId());
+        if(optionalUser.isEmpty()){
+            throw new UserErrorException("Cannot find user");
+        }
+        UserEntity userEntity = optionalUser.get();
+        if(userDTO.getRoleId() != null){
+            Optional<RoleEntity> optionalRole = roleRepository.findById(userDTO.getRoleId());
+            if(optionalRole.isEmpty()){
+                throw new RoleErrorException("Cannot find role");
+            }
+            RoleEntity roleEntity = optionalRole.get();
+            userEntity.setRoleEntity(roleEntity);
+        }
+        if(userDTO.getMultipartFiles() != null && userDTO.getMultipartFiles().size() == 1){
+            if(userEntity.getImageEntityList() != null){
+                imageRepository.deleteByUserEntity_Id(userDTO.getId());
+            }
+            for(MultipartFile multipartFile : userDTO.getMultipartFiles()) {
+                Map<String, Object> result = cloudinaryService.upload(multipartFile);
+                ImageEntity imageEntity = ImageEntity.builder()
+                        .url((String) result.get("url"))
+                        .userEntity(userEntity)
+                        .build();
+                imageRepository.save(imageEntity);
+            }
+        }
+        userRepository.save(userEntity);
+        return userConvert.convert(userEntity);
+    }
+
+    @Override
+    public UserResponse getUserById(String id) {
+        Optional<UserEntity> optional = userRepository.findById(id);
+        if(optional.isEmpty()){
+            throw new UserErrorException("Cannot find user");
+        }
+        UserEntity userEntity = optional.get();
+        return userConvert.convert(userEntity);
     }
 }

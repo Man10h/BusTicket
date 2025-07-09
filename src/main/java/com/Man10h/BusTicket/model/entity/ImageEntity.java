@@ -19,4 +19,8 @@ public class ImageEntity {
     @ManyToOne
     @JoinColumn(name = "busId")
     private BusEntity busEntity;
+
+    @ManyToOne
+    @JoinColumn(name = "userId")
+    private UserEntity userEntity;
 }

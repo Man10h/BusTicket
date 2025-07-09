@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "ticket")
@@ -18,7 +19,10 @@ public class TicketEntity {
     private Long id;
 
     private Double price;
-    private Date day;
+    private Date dayCreated;
+
+    @OneToMany(mappedBy = "ticketEntity", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, orphanRemoval = true)
+    private List<SeatPriceEntity> seatPriceEntityList;
 
     @ManyToOne
     @JoinColumn(name = "busId")

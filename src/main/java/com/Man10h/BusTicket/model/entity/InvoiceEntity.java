@@ -21,7 +21,7 @@ public class InvoiceEntity {
     private Long id;
 
     private Double price;
-    private Date dayBegin;
+    private Date dayCreated;
     private String status;
 
     @OneToMany(mappedBy = "invoiceEntity", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, orphanRemoval = true)

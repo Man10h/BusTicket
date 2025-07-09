@@ -22,8 +22,11 @@ public class SeatPriceEntity {
     @JoinColumn(name = "seatId")
     private SeatEntity seatEntity;
 
-
     @ManyToOne
     @JoinColumn(name = "tripId")
     private TripEntity tripEntity;
+
+    @ManyToOne
+    @JoinColumn(name = "ticketId")
+    private TicketEntity ticketEntity;
 }
