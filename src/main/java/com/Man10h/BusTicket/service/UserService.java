@@ -7,7 +7,8 @@ import com.Man10h.BusTicket.model.response.UserResponse;
 import java.util.Map;
 
 public interface UserService {
-    public Map<String, String> getToken(Map<String, Object> payload);
+    public Map<String, String> getAllToken(Map<String, Object> payload);
+    public String getToken(String refreshToken);
     public UserResponse updateUser(UserDTO userDTO);
     public UserResponse getUserById(String id);
 }

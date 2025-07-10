@@ -25,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -48,7 +49,7 @@ public class UserServiceImpl implements UserService {
     private String redirect_uri;
 
     @Override
-    public Map<String, String> getToken(Map<String, Object> payload) {
+    public Map<String, String> getAllToken(Map<String, Object> payload) {
         String code = payload.get("code").toString();
         String uri = "http://localhost:8080/realms/bus_ticket/protocol/openid-connect/token";
 
@@ -80,6 +81,31 @@ public class UserServiceImpl implements UserService {
             res.put("refresh_token", refresh_token);
             res.put("expires_in", expires_in);
             return res;
+        }
+        return null;
+    }
+
+    @Override
+    public String getToken(String refreshToken) {
+        String uri = "http://localhost:8080/realms/bus_ticket/protocol/openid-connect/token";
+        MultiValueMap<String, String> entity = new LinkedMultiValueMap<>();
+        entity.add("client_id", client_id);
+        entity.add("client_secret", client_secret);
+        entity.add("grant_type", "refresh_token");
+        entity.add("refresh_token", refreshToken);
+
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(entity, httpHeaders);
+        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                uri, HttpMethod.POST, httpEntity, new ParameterizedTypeReference<Map<String, Object>>() {}
+        );
+        if (response.getStatusCode() == HttpStatus.OK) {
+            if (Objects.requireNonNull(response.getBody()).get("access_token") != null) {
+                return response.getBody().get("access_token").toString();
+            }
+            return null;
         }
         return null;
     }

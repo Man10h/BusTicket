@@ -1,5 +1,6 @@
 package com.Man10h.BusTicket.exception;
 
+import com.Man10h.BusTicket.exception.ex.BusErrorException;
 import com.Man10h.BusTicket.exception.ex.RoleErrorException;
 import com.Man10h.BusTicket.exception.ex.UserErrorException;
 import com.Man10h.BusTicket.model.dto.ErrorDTO;
@@ -23,6 +24,16 @@ public class ExceptionHandling {
     @ExceptionHandler(RoleErrorException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorDTO handleRoleErrorException(RoleErrorException ex) {
+        return ErrorDTO.builder()
+                .errorCode(400L)
+                .errorMessage(ex.getMessage())
+                .build();
+    }
+
+
+    @ExceptionHandler(BusErrorException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorDTO handleBusErrorException(BusErrorException ex) {
         return ErrorDTO.builder()
                 .errorCode(400L)
                 .errorMessage(ex.getMessage())

@@ -20,6 +20,7 @@ public class BusEntity {
 
     private String name;
     private String description;
+    private Long numberOfSeats;
 
     @OneToMany(mappedBy = "busEntity", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, orphanRemoval = true)
     private List<ImageEntity> imageEntityList = new ArrayList<>();
