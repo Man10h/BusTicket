@@ -34,7 +34,7 @@ public class ManagerController {
 
     @PostMapping("/createBus")
     public ResponseEntity<?> createBus(@AuthenticationPrincipal Jwt jwt,
-                                       @RequestBody BusDTO busDTO) {
+                                       @ModelAttribute BusDTO busDTO) {
         try{
             return ResponseEntity.ok(busService.createBus(busDTO, jwt.getClaim("sub")));
         } catch (Exception e) {
@@ -44,7 +44,7 @@ public class ManagerController {
     }
 
     @PostMapping("/updateBus")
-    public ResponseEntity<?> updateBus(@RequestBody BusDTO busDTO) {
+    public ResponseEntity<?> updateBus(@ModelAttribute BusDTO busDTO) {
         try{
             return ResponseEntity.ok(busService.updateBus(busDTO));
         } catch (Exception e) {

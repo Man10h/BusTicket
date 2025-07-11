@@ -76,7 +76,7 @@ public class BusServiceImpl implements BusService {
             seatRepository.save(seatEntity);
         }
 
-        if(!busDTO.getMultipartFiles().isEmpty()){
+        if(!busDTO.getMultipartFiles().isEmpty() && busDTO.getMultipartFiles().size() > 0){
             for(MultipartFile multipartFile : busDTO.getMultipartFiles()) {
                 Map result = cloudinaryService.upload(multipartFile);
                 ImageEntity imageEntity = ImageEntity.builder()
@@ -99,11 +99,26 @@ public class BusServiceImpl implements BusService {
             throw new BusErrorException("Bus not found");
         }
         BusEntity busEntity = optionalBus.get();
-        if(busDTO.getDescription() != null) busEntity.setDescription(busDTO.getDescription());
+        if(busDTO.getDescription() != null) {
+            busEntity.setDescription(busDTO.getDescription());
+        }
         if(busDTO.getName() != null){
             busEntity.setName(busDTO.getName());
         }
-        if(!busDTO.getMultipartFiles().isEmpty()){
+        if(busDTO.getNumberOfSeats() != null) {
+            seatRepository.deleteByBusEntity_Id(busDTO.getId());
+
+            for(int i=0; i< busDTO.getNumberOfSeats(); i++){
+                SeatEntity seatEntity = SeatEntity.builder()
+                        .seatEntityPriceList(new ArrayList<>())
+                        .busEntity(busEntity)
+                        .name(i + "")
+                        .build();
+                seatRepository.save(seatEntity);
+            }
+        }
+
+        if(busDTO.getMultipartFiles() != null && !busDTO.getMultipartFiles().isEmpty()){
             for(MultipartFile multipartFile : busDTO.getMultipartFiles()) {
                 Map result = cloudinaryService.upload(multipartFile);
                 ImageEntity imageEntity = ImageEntity.builder()
@@ -139,13 +154,7 @@ public class BusServiceImpl implements BusService {
             throw new BusErrorException("Bus not found");
         }
         BusEntity busEntity = optionalBus.get();
-        return BusResponse.builder()
-                .id(busEntity.getId())
-                .name(busEntity.getName())
-                .description(busEntity.getDescription())
-                .imageEntityList(busEntity.getImageEntityList())
-                .seatEntities(busEntity.getSeatEntityList())
-                .build();
+        return busConvert.convertAll(busEntity);
     }
 
 

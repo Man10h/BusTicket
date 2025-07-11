@@ -12,13 +12,10 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BusResponse {
-    //attribute model mapper
     private Long id;
     private String name;
     private String description;
-    private List<ImageEntity> imageEntityList;
     private Long numberOfSeats;
-
-    //attribute not model mapper
-    private List<SeatEntity> seatEntities;
+    private List<SeatResponse> seatResponses;
+    private List<ImageResponse> imageResponses;
 }
