@@ -33,7 +33,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request ->
                         request
-                                .requestMatchers("/home", "/home/getToken", "/home/getAllToken").permitAll()
+                                .requestMatchers("/home", "/home/**").permitAll()
                                 .anyRequest().authenticated())
                 .oauth2Login(oauth2 ->
                         oauth2.authorizationEndpoint(endpoint ->

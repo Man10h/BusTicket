@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface BusService {
     public List<BusResponse> getBusByUserId(String userId, int page, int pageSize);
+    public List<BusResponse> getBusByName(String name);
     public BusResponse createBus(BusDTO busDTO, String userId);
     public BusResponse updateBus(BusDTO busDTO);
     public void deleteBus(Long busId);

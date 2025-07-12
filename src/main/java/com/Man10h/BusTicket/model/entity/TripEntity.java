@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -19,14 +18,8 @@ public class TripEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
     private String departure;
     private String destination;
-
-    private Date dayBegin;
-    private Date startTime;
-    private Date endTime;
-
     private String description;
 
     @ManyToOne
@@ -38,6 +31,9 @@ public class TripEntity {
 
     @OneToMany(mappedBy = "tripEntity", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, orphanRemoval = true)
     private List<SeatPriceEntity> seatPriceEntityList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "tripEntity", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, orphanRemoval = true)
+    private List<TripDetailEntity> tripDetailEntityList = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "userId")

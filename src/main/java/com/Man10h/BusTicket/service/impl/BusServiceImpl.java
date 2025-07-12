@@ -16,6 +16,7 @@ import com.Man10h.BusTicket.repository.UserRepository;
 import com.Man10h.BusTicket.service.BusService;
 import com.Man10h.BusTicket.service.CloudinaryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,7 +36,16 @@ public class BusServiceImpl implements BusService {
 
     @Override
     public List<BusResponse> getBusByUserId(String userId, int page, int pageSize) {
-        List<BusEntity> busEntityList = busRepository.findByUserEntity_Id(userId, PageRequest.of(page, pageSize));
+        Page<BusEntity> busEntityList = busRepository.findByUserEntity_Id(userId, PageRequest.of(page, pageSize));
+        if(busEntityList.isEmpty()){
+            return null;
+        }
+        return busEntityList.stream().map(busConvert::convert).toList();
+    }
+
+    @Override
+    public List<BusResponse> getBusByName(String name) {
+        List<BusEntity> busEntityList = busRepository.findByName(name);
         if(busEntityList.isEmpty()){
             return null;
         }
