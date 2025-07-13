@@ -1,9 +1,6 @@
 package com.Man10h.BusTicket.exception;
 
-import com.Man10h.BusTicket.exception.ex.BusErrorException;
-import com.Man10h.BusTicket.exception.ex.RoleErrorException;
-import com.Man10h.BusTicket.exception.ex.TripErrorException;
-import com.Man10h.BusTicket.exception.ex.UserErrorException;
+import com.Man10h.BusTicket.exception.ex.*;
 import com.Man10h.BusTicket.model.dto.ErrorDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -45,6 +42,15 @@ public class ExceptionHandling {
     @ExceptionHandler(TripErrorException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorDTO handleTripErrorException(TripErrorException ex) {
+        return ErrorDTO.builder()
+                .errorCode(400L)
+                .errorMessage(ex.getMessage())
+                .build();
+    }
+
+    @ExceptionHandler(TicketErrorException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorDTO handleTicketErrorException(TicketErrorException ex) {
         return ErrorDTO.builder()
                 .errorCode(400L)
                 .errorMessage(ex.getMessage())

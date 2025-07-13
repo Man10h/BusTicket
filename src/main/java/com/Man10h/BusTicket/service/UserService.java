@@ -11,4 +11,5 @@ public interface UserService {
     public String getToken(String refreshToken);
     public UserResponse updateUser(UserDTO userDTO);
     public UserResponse getUserById(String id);
+
 }

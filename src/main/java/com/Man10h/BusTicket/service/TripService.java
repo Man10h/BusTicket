@@ -12,4 +12,5 @@ public interface TripService {
     public void deleteTrip(Long tripId);
     public List<TripResponse> find(QueryDTO queryDTO, int page, int pageSize);
     public TripResponse findById(Long tripId);
+    public List<TripResponse> getRecommendationTrips(String userId);
 }

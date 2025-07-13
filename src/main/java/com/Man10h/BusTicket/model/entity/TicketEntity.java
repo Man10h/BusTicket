@@ -20,6 +20,7 @@ public class TicketEntity {
 
     private Double price;
     private Date dayCreated;
+    private Boolean status;
 
     @OneToMany(mappedBy = "ticketEntity", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, orphanRemoval = true)
     private List<SeatPriceEntity> seatPriceEntityList;

@@ -10,12 +10,11 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TicketResponse {
+public class InvoiceResponse {
     private Long id;
     private Double price;
+    private String status;
     private Date dayCreated;
-    private Boolean status;
 
-    private List<SeatPriceResponse> seatPriceResponses;
-    private TripResponse tripResponse;
+    private List<TicketResponse> ticketResponses;
 }

@@ -30,7 +30,22 @@ public interface TripRepository extends JpaRepository<TripEntity, Long> {
                                  Pageable pageable);
 
 
-    @Query("SELECT t FROM TripEntity t WHERE (t.destination IS  NULL OR t.destination = ?1) ")
-    List<TripEntity> findByDestination(String destination);
+    @Query("SELECT t FROM TripEntity t " +
+            "WHERE (?1 IS  NULL OR t.destination LIKE CONCAT('%', ?1, '%')) " +
+            "OR (?2 IS NULL OR t.departure LIKE CONCAT('%', ?2, '%')) " +
+            "ORDER BY t.id DESC LIMIT 10 ")
+    List<TripEntity> findByDestinationAndDeparture(String destination, String departure);
 
+
+    @Query("SELECT t FROM TripEntity t " +
+            "WHERE t.id IN (SELECT tr.id FROM TripEntity tr WHERE (?1 IS NULL OR tr.userEntity.id = ?1) ORDER BY tr.id DESC LIMIT 50) " +
+            "GROUP BY t.destination " +
+            "ORDER BY count(*) DESC ")
+    List<TripEntity> statisticsTripsByDestination(String userId);
+
+    @Query("SELECT t FROM TripEntity t " +
+            "WHERE t.id IN (SELECT tr.id FROM TripEntity tr WHERE (?1 IS NULL OR tr.userEntity.id = ?1) ORDER BY tr.id DESC LIMIT 50) " +
+            "GROUP BY t.departure " +
+            "ORDER BY count(*) DESC ")
+    List<TripEntity> statisticsTripsByDeparture(String userId);
 }

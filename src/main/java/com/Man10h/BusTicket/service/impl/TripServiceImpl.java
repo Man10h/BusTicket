@@ -200,4 +200,30 @@ public class TripServiceImpl implements TripService {
         TripEntity tripEntity = optional.get();
         return tripConvert.convertAll(tripEntity);
     }
+
+    @Override
+    public List<TripResponse> getRecommendationTrips(String userId) {
+        if(userId == null){
+            return null;
+        }
+        Optional<UserEntity> optionalUserEntity = userRepository.findById(userId);
+        if(optionalUserEntity.isEmpty()){
+            throw new UserErrorException("User not found");
+        }
+        String mostDestination = null;
+        List<TripEntity> tripEntityListByDestination = tripRepository.statisticsTripsByDestination(userId);
+        if(tripEntityListByDestination != null && !tripEntityListByDestination.isEmpty()){
+            mostDestination = tripEntityListByDestination.get(0).getDestination();
+        }
+        String mostDeparture = null;
+        List<TripEntity> tripEntityListByDeparture = tripRepository.statisticsTripsByDestination(userId);
+        if(tripEntityListByDeparture != null && !tripEntityListByDeparture.isEmpty()){
+            mostDeparture = tripEntityListByDeparture.get(0).getDeparture();
+        }
+        List<TripEntity> tripEntityList = tripRepository.findByDestinationAndDeparture(mostDestination, mostDeparture);
+        if(tripEntityList == null || tripEntityList.isEmpty()){
+            return null;
+        }
+        return tripEntityList.stream().map(tripConvert::convert).toList();
+    }
 }
