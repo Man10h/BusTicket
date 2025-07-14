@@ -22,4 +22,8 @@ public class TripDTO {
     private Double price;
 
     private Long busId;
+
+    public String toString(){
+        return departure + " " + destination + " " + description + " " + startTime + " " + endTime;
+    }
 }

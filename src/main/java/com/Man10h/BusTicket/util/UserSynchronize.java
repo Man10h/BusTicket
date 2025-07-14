@@ -21,7 +21,8 @@ public class UserSynchronize {
     public UserEntity synchronize(Jwt jwt) {
         String userId = jwt.getSubject();
         String email = jwt.getClaims().get("email").toString();
-        String username = jwt.getClaims().get("preferred_username").toString();
+        String username = jwt.getClaims().get("preferred_username").toString() == null ?
+                email : jwt.getClaims().get("preferred_username").toString();
 
         Optional<UserEntity> optionalId = userRepository.findById(userId);
         Optional<UserEntity> optionalUsername = userRepository.findByUsername(username);

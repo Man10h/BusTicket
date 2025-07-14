@@ -10,6 +10,7 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@ToString
 public class QueryDTO {
     private String departure;
     private String destination;

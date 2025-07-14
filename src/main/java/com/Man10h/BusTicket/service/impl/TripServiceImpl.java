@@ -11,6 +11,8 @@ import com.Man10h.BusTicket.model.response.TripResponse;
 import com.Man10h.BusTicket.repository.*;
 import com.Man10h.BusTicket.service.TripService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -173,6 +175,7 @@ public class TripServiceImpl implements TripService {
     }
 
     @Override
+    @Cacheable(value = "trip", key = "#queryDTO.toString()")
     public List<TripResponse> find(QueryDTO queryDTO, int page, int pageSize) {
         Page<TripEntity> tripEntityList = tripRepository.findByQuery(queryDTO.getDestination(),
                 queryDTO.getDeparture(),
@@ -202,6 +205,7 @@ public class TripServiceImpl implements TripService {
     }
 
     @Override
+    @Cacheable(value = "user", key = "#userId")
     public List<TripResponse> getRecommendationTrips(String userId) {
         if(userId == null){
             return null;
