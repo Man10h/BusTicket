@@ -10,6 +10,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
 
   security:
     oauth2:
@@ -33,6 +36,7 @@ spring:
 
 server:
   port: 8081
+
 cloudinary:
   api_key: 829565713471837
   api_secret: oHpiWWc8qqRFZUkj-kBtXhsVcJ8

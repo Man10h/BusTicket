@@ -16,10 +16,7 @@ import com.Man10h.BusTicket.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -70,21 +67,29 @@ public class PaymentServiceImpl implements PaymentService {
                 .userEntity(userEntity)
                 .price(price)
                 .dayCreated(new Date(new Date().getTime()))
+                .seatPriceEntityList(new ArrayList<>())
                 .status(false)
                 .build();
         ticketRepository.save(ticketEntity);
 
         //logic seatPrice isAvailable -> false
-        for(Long seatPriceId : ticketDTO.getSeatPriceIdList()) {
-            Optional<SeatPriceEntity> optionalSeatPriceEntity = seatPriceRepository.findById(seatPriceId);
+        for(int i =0; i<ticketDTO.getSeatPriceIdList().size(); i++) {
+            Optional<SeatPriceEntity> optionalSeatPriceEntity = seatPriceRepository.findById(ticketDTO.getSeatPriceIdList().get(i));
             if(optionalSeatPriceEntity.isEmpty()) {
+                ticketRepository.delete(ticketEntity);
                 return null;
             }
             SeatPriceEntity seatPriceEntity = optionalSeatPriceEntity.get();
+            if(!seatPriceEntity.getIsAvailable()){
+                ticketRepository.delete(ticketEntity);
+                return null;
+            }
             seatPriceEntity.setTicketEntity(ticketEntity);
             seatPriceEntity.setIsAvailable(false);
             seatPriceRepository.save(seatPriceEntity);
+            ticketEntity.getSeatPriceEntityList().add(seatPriceEntity);
         }
+        ticketRepository.save(ticketEntity);
         return ticketConvert.convert(ticketEntity);
     }
 
@@ -105,7 +110,7 @@ public class PaymentServiceImpl implements PaymentService {
         if(payload == null || payload.isEmpty() || userId == null){
             return null;
         }
-        List<Long> ticketIds = (List<Long>) payload.get("ticketIds");
+        List<Integer> ticketIds = (List<Integer>) payload.get("ticketIds");
         if(ticketIds == null || ticketIds.isEmpty()) {
             return null;
         }
@@ -119,25 +124,30 @@ public class PaymentServiceImpl implements PaymentService {
                 .userEntity(userEntity)
                 .status(Status.INVOICE_NOT_PAID)
                 .dayCreated(new Date(new Date().getTime()))
+                .ticketEntityList(new ArrayList<>())
                 .build();
         invoiceRepository.save(invoiceEntity);
 
         Double price = 0.0;
-        for(Long ticketId : ticketIds) {
-            Optional<TicketEntity> optionalTicketEntity = ticketRepository.findById(ticketId);
+        for(Integer ticketId : ticketIds) {
+            Optional<TicketEntity> optionalTicketEntity = ticketRepository.findById((long) ticketId);
             if(optionalTicketEntity.isEmpty()) {
+                invoiceRepository.delete(invoiceEntity);
                 throw new TicketErrorException("Ticket not found");
             }
             TicketEntity ticketEntity = optionalTicketEntity.get();
             if(ticketEntity.getStatus()){
+                invoiceRepository.delete(invoiceEntity);
                 throw new TicketErrorException("Ticket is already paid");
             }
             if(ticketEntity.getInvoiceEntity() != null){
+                invoiceRepository.delete(invoiceEntity);
                 throw new TicketErrorException("Ticket is in the old Invoice");
             }
             ticketEntity.setInvoiceEntity(invoiceEntity);
             price+=ticketEntity.getPrice();
             ticketRepository.save(ticketEntity);
+            invoiceEntity.getTicketEntityList().add(ticketEntity);
         }
         invoiceEntity.setPrice(price);
         invoiceRepository.save(invoiceEntity);
@@ -149,7 +159,7 @@ public class PaymentServiceImpl implements PaymentService {
         if(userId == null){
             return null;
         }
-        List<InvoiceEntity> invoiceEntityList = invoiceRepository.findByUserId(userId);
+        List<InvoiceEntity> invoiceEntityList = invoiceRepository.findByUserEntity_Id(userId);
         if(invoiceEntityList == null){
             return null;
         }

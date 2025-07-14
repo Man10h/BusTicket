@@ -37,15 +37,37 @@ public interface TripRepository extends JpaRepository<TripEntity, Long> {
     List<TripEntity> findByDestinationAndDeparture(String destination, String departure);
 
 
-    @Query("SELECT t FROM TripEntity t " +
-            "WHERE t.id IN (SELECT tr.id FROM TripEntity tr WHERE (?1 IS NULL OR tr.userEntity.id = ?1) ORDER BY tr.id DESC LIMIT 50) " +
-            "GROUP BY t.destination " +
-            "ORDER BY count(*) DESC ")
-    List<TripEntity> statisticsTripsByDestination(String userId);
+    @Query(value = """
+    SELECT t.destination, COUNT(*) AS total
+    FROM trip t
+    JOIN (
+        SELECT tr.id
+        FROM trip tr
+        WHERE (:userId IS NULL OR tr.user_id = :userId)
+        ORDER BY tr.id DESC
+        LIMIT 50
+    ) AS limited
+    ON t.id = limited.id
+    GROUP BY t.destination
+    ORDER BY total DESC
+    """, nativeQuery = true)
+    List<Object[]> statisticsTripsByDestination(@Param("userId") String userId);
 
-    @Query("SELECT t FROM TripEntity t " +
-            "WHERE t.id IN (SELECT tr.id FROM TripEntity tr WHERE (?1 IS NULL OR tr.userEntity.id = ?1) ORDER BY tr.id DESC LIMIT 50) " +
-            "GROUP BY t.departure " +
-            "ORDER BY count(*) DESC ")
-    List<TripEntity> statisticsTripsByDeparture(String userId);
+
+    @Query(value = """
+    SELECT t.departure, COUNT(*) AS total
+    FROM trip t
+    JOIN (
+        SELECT tr.id
+        FROM trip tr
+        WHERE (:userId IS NULL OR tr.user_id = :userId)
+        ORDER BY tr.id DESC
+        LIMIT 50
+    ) AS limited
+    ON t.id = limited.id
+    GROUP BY t.departure
+    ORDER BY total DESC
+    """, nativeQuery = true)
+    List<Object[]> statisticsTripsByDeparture(@Param("userId") String userId);
+
 }

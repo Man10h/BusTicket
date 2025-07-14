@@ -211,14 +211,14 @@ public class TripServiceImpl implements TripService {
             throw new UserErrorException("User not found");
         }
         String mostDestination = null;
-        List<TripEntity> tripEntityListByDestination = tripRepository.statisticsTripsByDestination(userId);
+        List<Object[]> tripEntityListByDestination = tripRepository.statisticsTripsByDestination(userId);
         if(tripEntityListByDestination != null && !tripEntityListByDestination.isEmpty()){
-            mostDestination = tripEntityListByDestination.get(0).getDestination();
+            mostDestination = (String) tripEntityListByDestination.get(0)[0];
         }
         String mostDeparture = null;
-        List<TripEntity> tripEntityListByDeparture = tripRepository.statisticsTripsByDestination(userId);
+        List<Object[]> tripEntityListByDeparture = tripRepository.statisticsTripsByDeparture(userId);
         if(tripEntityListByDeparture != null && !tripEntityListByDeparture.isEmpty()){
-            mostDeparture = tripEntityListByDeparture.get(0).getDeparture();
+            mostDeparture = (String) tripEntityListByDeparture.get(0)[0];
         }
         List<TripEntity> tripEntityList = tripRepository.findByDestinationAndDeparture(mostDestination, mostDeparture);
         if(tripEntityList == null || tripEntityList.isEmpty()){

@@ -109,10 +109,14 @@ public class CustomerController {
     }
 
 
-    @GetMapping("/updateInvoice")
-    public ResponseEntity<?> updateInvoiceIsPaid(@RequestParam(name = "invoiceId") Long invoiceId) {
+    @PostMapping("/updateInvoice")
+    public ResponseEntity<?> updateInvoiceIsPaid(@RequestBody Map<String, Object> payload) {
         try{
-            InvoiceResponse invoiceResponse = paymentService.updateInvoiceIsPaid(invoiceId);
+            Integer invoiceId = (Integer) payload.get("invoiceId");
+            if(invoiceId == null) {
+                return ResponseEntity.status(400).build();
+            }
+            InvoiceResponse invoiceResponse = paymentService.updateInvoiceIsPaid((long) invoiceId);
             return ResponseEntity.ok(invoiceResponse);
         } catch (Exception e) {
             System.out.println(e);
