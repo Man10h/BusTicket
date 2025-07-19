@@ -48,10 +48,13 @@ public class UserServiceImpl implements UserService {
     @Value("${spring.security.oauth2.client.registration.bus_ticket.redirect-uri}")
     private String redirect_uri;
 
+    @Value("${spring.security.oauth2.client.provider.bus_ticket.token-uri}")
+    private String token_uri;
+
     @Override
     public Map<String, String> getAllToken(Map<String, Object> payload) {
         String code = payload.get("code").toString();
-        String uri = "http://localhost:8080/realms/bus_ticket/protocol/openid-connect/token";
+
 
         MultiValueMap<String, String> entity = new LinkedMultiValueMap<>();
         entity.add("client_id", client_id);
@@ -66,7 +69,7 @@ public class UserServiceImpl implements UserService {
         HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(entity, httpHeaders);
 
         ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
-                uri,
+                token_uri,
                 HttpMethod.POST,
                 httpEntity,
                 new ParameterizedTypeReference<Map<String, Object>>() {}
@@ -87,7 +90,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String getToken(String refreshToken) {
-        String uri = "http://localhost:8080/realms/bus_ticket/protocol/openid-connect/token";
         MultiValueMap<String, String> entity = new LinkedMultiValueMap<>();
         entity.add("client_id", client_id);
         entity.add("client_secret", client_secret);
@@ -99,7 +101,7 @@ public class UserServiceImpl implements UserService {
 
         HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(entity, httpHeaders);
         ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
-                uri, HttpMethod.POST, httpEntity, new ParameterizedTypeReference<Map<String, Object>>() {}
+                token_uri, HttpMethod.POST, httpEntity, new ParameterizedTypeReference<Map<String, Object>>() {}
         );
         if (response.getStatusCode() == HttpStatus.OK) {
             if (Objects.requireNonNull(response.getBody()).get("access_token") != null) {

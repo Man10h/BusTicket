@@ -1,0 +1,57 @@
+spring:
+  application:
+    name: bus_ticket
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:default}
+    username: ${SPRING_DATASOURCE_USERNAME:default}
+    password: ${SPRING_DATASOURCE_PASSWORD:default}
+
+  data:
+    redis:
+      host: redis
+      port: 6379
+
+  cache:
+    type: redis
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        enable_lazy_load_no_trans: true
+        format_sql: true
+    show-sql: true
+
+  security:
+    oauth2:
+      resource server:
+        jwt:
+          issuer-uri: ${SPRING_SECURITY_OAUTH2_RESOURCE_SERVER_JWT_ISSUER_URI:default}
+      client:
+        registration:
+          bus_ticket:
+            client-secret: ${SPRING_SECURITY_CLIENT_REGISTRATION_BUS_TICKET_CLIENT_SECRET:default}
+            client-id: ${SPRING_SECURITY_CLIENT_REGISTRATION_BUS_TICKET_CLIENT_ID:default}
+            authorization-grant-type: authorization_code
+            scope:
+              - openid
+              - profile
+              - email
+            redirect-uri: ${SPRING_SECURITY_CLIENT_REGISTRATION_BUS_TICKET_REDIRECT_URI:default}
+        provider:
+          bus_ticket:
+            issuer-uri: ${SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_BUS_TICKET_ISSUER_URI:default}
+            token-uri: ${SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_BUS_TICKET_TOKEN_URI:default}
+
+server:
+  port: 8081
+
+cloudinary:
+  api_key: ${CLOUDINARY_API_KEY:default}
+  api_secret: ${CLOUDINARY_API_SECRET:default}
+  cloud_name: ${CLOUDINARY_CLOUD_NAME:default}
+

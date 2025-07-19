@@ -18,9 +18,13 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
+        dialect: org.hibernate.dialect.MySQLDialect
+        enable_lazy_load_no_trans: true
+        format_sql: true
+    show-sql: true
 
   security:
     oauth2:
@@ -41,6 +45,7 @@ spring:
         provider:
           bus_ticket:
             issuer-uri: http://localhost:8080/realms/bus_ticket
+            token-uri: http://localhost:8080/realms/bus_ticket/protocol/openid-connect/token
 
 server:
   port: 8081

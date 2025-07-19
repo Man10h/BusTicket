@@ -1,0 +1,63 @@
+services:
+  mysql:
+    image: mysql:latest
+    container_name: mysql_bus_ticket
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  redis:
+    image: redis:7.4.2
+    container_name: redis_bus_ticket
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  keycloak:
+    image: keycloak/keycloak:latest
+    container_name: keycloak_bus_ticket
+    environment:
+      - KC_DB=mysql
+      - KC_DB_URL=jdbc:mysql://mysql:3306/bus_ticket_user
+      - KC_DB_USERNAME=${KC_DB_USERNAME}
+      - KC_DB_PASSWORD=${KC_DB_PASSWORD}
+      - KEYCLOAK_ADMIN=${KEYCLOAK_ADMIN}
+      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+    command: [ "start-dev" ]
+
+  busticket:
+    image: busticket:latest
+    container_name: bus_ticket
+    environment:
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - SPRING_SECURITY_CLIENT_REGISTRATION_BUS_TICKET_CLIENT_SECRET=${SPRING_SECURITY_CLIENT_REGISTRATION_BUS_TICKET_CLIENT_SECRET}
+      - SPRING_SECURITY_CLIENT_REGISTRATION_BUS_TICKET_CLIENT_ID=${SPRING_SECURITY_CLIENT_REGISTRATION_BUS_TICKET_CLIENT_ID}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/bus_ticket
+      - SPRING_SECURITY_OAUTH2_RESOURCE_SERVER_JWT_ISSUER_URI=http://keycloak:8080/realms/bus_ticket
+      - SPRING_SECURITY_CLIENT_REGISTRATION_BUS_TICKET_REDIRECT_URI=http://localhost:3000/login/oauth2/code/bus_ticket
+      - SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_BUS_TICKET_ISSUER_URI=http://keycloak:8080/realms/bus_ticket
+      - SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_BUS_TICKET_TOKEN_URI=http://keycloak:8080/realms/bus_ticket/protocol/openid-connect/token
+    ports:
+      - "8081:8081"
+
+    depends_on:
+      - mysql
+      - keycloak
+      - redis
+
+volumes:
+  mysql-data:
+  redis-data:
+

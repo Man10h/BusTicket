@@ -23,6 +23,8 @@ public class HomeController {
         return "Hello World";
     }
 
+    //logout: http://localhost:8080/realms/bus_ticket/protocol/openid-connect/logout
+
     @PostMapping("/getAllToken")
     public ResponseEntity<Map<String, String>> getToken(@RequestBody Map<String, Object> payload) {
         Map<String, String> response = userService.getAllToken(payload);
