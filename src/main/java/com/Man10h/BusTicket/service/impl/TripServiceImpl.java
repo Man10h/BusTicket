@@ -11,19 +11,14 @@ import com.Man10h.BusTicket.model.response.TripResponse;
 import com.Man10h.BusTicket.repository.*;
 import com.Man10h.BusTicket.service.TripService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -176,7 +171,7 @@ public class TripServiceImpl implements TripService {
 
     @Override
     @Cacheable(value = "trip", key = "#queryDTO.toString()")
-    public List<TripResponse> find(QueryDTO queryDTO, int page, int pageSize) {
+    public Map<String, Object> find(QueryDTO queryDTO, int page, int pageSize) {
         Page<TripEntity> tripEntityList = tripRepository.findByQuery(queryDTO.getDestination(),
                 queryDTO.getDeparture(),
                 queryDTO.getStartTime(),
@@ -186,9 +181,14 @@ public class TripServiceImpl implements TripService {
         if(tripEntityList == null || tripEntityList.isEmpty()){
             return null;
         }
-        return tripEntityList.stream()
+        List<TripResponse> tripResponses = tripEntityList.stream()
                 .map(tripConvert::convert)
                 .toList();
+        int totalPages = tripEntityList.getTotalPages();
+        Map<String, Object> response = new HashMap<>();
+        response.put("totalPages", (Integer) totalPages);
+        response.put("trips", (List<TripResponse>) tripResponses);
+        return response;
     }
 
     @Override

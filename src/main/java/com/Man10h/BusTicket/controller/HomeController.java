@@ -24,6 +24,8 @@ public class HomeController {
     }
 
     //logout: http://localhost:8080/realms/bus_ticket/protocol/openid-connect/logout
+    //login: http://localhost:8080/realms/bus_ticket/protocol/openid-connect/auth
+    //?client_id=bus_ticket&response_type=code&redirect_uri=http://localhost:3000/login/oauth2/code/bus_ticket&scope=openid
 
     @PostMapping("/getAllToken")
     public ResponseEntity<Map<String, String>> getToken(@RequestBody Map<String, Object> payload) {
